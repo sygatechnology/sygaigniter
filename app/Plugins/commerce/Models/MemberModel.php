@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace Plugin\commerce\Models;
 
 /**
- * @package    App\Models
+ * @package    Plugin\commerce\Models
  * @author     SygaTechnology Dev Team
  * @copyright  2019 SygaTechnology Foundation
  */
@@ -18,15 +18,15 @@ use \App\Core\SY_Model;
  * @package App\Models
  */
 
-class UserModel extends SY_Model
+class MemberModel extends SY_Model
 {
-    protected $table                = 'users';
-    protected $primaryKey           = 'user_id';
+    protected $table                = 'sc_users';
+    protected $primaryKey           = 'id';
 
-    protected $returnType           = 'App\Entities\User';
+    protected $returnType           = '\Plugin\commerce\Entities\Member';
     protected $useSoftDeletes       = true;
 
-    protected $allowedFields        = ['uname', 'fname', 'lname', 'email', 'psswd', 'status', 'reset_psswd_token', 'reset_psswd_validity'];
+    //protected $allowedFields        = ['uname', 'fname', 'lname', 'email', 'psswd', 'status', 'reset_psswd_token', 'reset_psswd_validity'];
 
     protected $useTimestamps        = true;
     protected $createdField         = 'created_at';
@@ -35,10 +35,8 @@ class UserModel extends SY_Model
 
     protected $skipValidation       = false;
     protected $validationRules      = [
-        'psswd'       => 'required|min_length[8]',
-        'uname'       => 'required|alpha_numeric_space|min_length[3]|is_unique[users.uname]',
-        'lname'       => 'required|min_length[3]',
-        'email'       => 'required|valid_email|is_unique[users.email]'
+        'login'       => 'required|alpha_numeric_space|min_length[3]|is_unique[sc_users.login]',
+        'email'       => 'required|valid_email|is_unique[sc_users.email]'
     ];
 
     public function getResult(string $status = null, int $limit = null, int $numPage = null, string $order = null, string $order_sens = null, $with_deleted = false, $only_deleted = true)
@@ -55,26 +53,11 @@ class UserModel extends SY_Model
         $rows = [];
         foreach ($dbResult as $user) {
             $uResult = $user->getResult();
-            $uResult['roles'] = $user->getRoles();
-            unset($userRoles);
             $rows[] = $uResult;
             unset($uResult);
         }
         $apiResult = \Config\Services::ApiResult();
         $where = (!is_null($status)) ? ['status =' => $status] : [];
         return $apiResult->set($rows, $this->countAllCompiledResults($with_deleted, $where), $limit, $numPage);
-    }
-
-    public function insertRole($user_id, $role_slug)
-    {
-        $db = \Config\Database::connect();
-        $data = array(
-            'user_id' => $user_id,
-            'role_slug'  => $role_slug
-        );
-        if ($db->table('user_roles')->insert($data)) {
-            return $this;
-        }
-        return false;
     }
 }
