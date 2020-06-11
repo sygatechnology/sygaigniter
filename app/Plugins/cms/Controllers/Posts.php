@@ -7,7 +7,7 @@ namespace App\Plugins\cms\Controllers;
  * @author     SygaTechnology Dev Team
  * @copyright  2019 SygaTechnology Foundation
  */
-use Plugin\cms\Models\TaxonomyModel;
+use Plugin\cms\Models\TermModel;
 use Plugin\cms\Models\PostModel;
 use Plugin\cms\Entities\Post;
 
@@ -149,7 +149,6 @@ class Posts extends BaseController
                 $postModel = new PostModel();
                 $post = new Post($id);
                 if ($post->isNull()) return $this->failNotFound();
-                $termModel->deleteTermRelationships($id);
                 $postModel->deletePostMeta($id);
                 $postModel->deletePostTerms($id);
                 $postModel->delete($id);
@@ -162,7 +161,6 @@ class Posts extends BaseController
                 foreach($posts as $post){
                     $ids[] = $post->post_id;
                 }
-                $postModel->purgeTermRelationships($ids);
                 $postModel->purgePostMeta($ids);
                 $postModel->purgePostTerms($ids);
                 $postModel->purgePosts($ids);

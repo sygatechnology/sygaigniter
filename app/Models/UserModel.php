@@ -37,7 +37,7 @@ class UserModel extends SY_Model
     protected $validationRules      = [
         'psswd'       => 'required|min_length[8]',
         'uname'       => 'required|alpha_numeric_space|min_length[3]|is_unique[users.uname]',
-        'lname'       => 'required|min_length[3]',
+        'lname'       => 'min_length[3]',
         'email'       => 'required|valid_email|is_unique[users.email]'
     ];
 

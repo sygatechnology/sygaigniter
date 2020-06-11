@@ -7,6 +7,7 @@
         protected $description = "";
         protected $version = "";
         protected $author = "Syga Technology Team Developer";
+        protected $dependencies = [];
         protected $helpers = [];
 
         public function __construct(){

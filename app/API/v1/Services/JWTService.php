@@ -7,6 +7,10 @@ class JWTService
 
     private static $lastError = null;
 
+    private static $isRefreshed = false;
+
+    private static $refreshedToken = null;
+
     /**
      * Encode user entity to JWT
      *
@@ -58,7 +62,21 @@ class JWTService
     }
 
     public static function refresh($payload){
-        return static::encode($payload->user);
+        static::$refreshedToken = static::encode($payload->user);
+        $db = \Config\Database::connect();
+        $db->table('users')
+            ->where("user_id", $payload->user->id)
+            ->where("current_token", static::$refreshedToken)
+            ->update();
+        static::$isRefreshed = true;
+    }
+
+    public static function isRefreshed(){
+        return static::$isRefreshed;
+    }
+
+    public static function refreshedToken(){
+        return static::$refreshedToken;
     }
 
     public static function publicTokenExists($publicToken){

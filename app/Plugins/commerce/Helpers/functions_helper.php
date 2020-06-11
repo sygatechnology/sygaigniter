@@ -1,5 +1,5 @@
 <?php
-
+if( !function_exists('_truncate_slug') ) {
     /**
      * Truncate a slug.
      *
@@ -15,13 +15,15 @@
         if(is_numeric($last)){
             $slug = substr( $slug, 0 , strlen($slug)-1);
         }
-          if ( strlen( $slug ) > $length ) {
-              $decoded_slug = urldecode( $slug );
-              if ( $decoded_slug === $slug ) {
-                  $slug = substr( $slug, 0, $length );
-              } else {
-                  $slug = utf8_uri_encode( $decoded_slug, $length );
-              }
-          }
-          return rtrim( $slug, '-' );
-      }
+        if ( strlen( $slug ) > $length ) {
+            $decoded_slug = urldecode( $slug );
+            if ( $decoded_slug === $slug ) {
+                $slug = substr( $slug, 0, $length );
+            } else {
+                $slug = utf8_uri_encode( $decoded_slug, $length );
+            }
+        }
+        return rtrim( $slug, '-' );
+    }
+}
+    

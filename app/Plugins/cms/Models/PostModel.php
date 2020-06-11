@@ -394,13 +394,6 @@ class PostModel extends SY_Model
         return $builder->where($this->deletedField.' <>', '0000-00-00 00:00:00')->get()->getResult();
     }
 
-    public function deleteTermRelationships($posID){
-        $db      = \Config\Database::connect();
-        return $db->table('term_relationships')
-                    ->where('object_id', $posID)
-                    ->delete();
-    }
-
     public function deletePostMeta($postID){
         $db      = \Config\Database::connect();
         return $db->table('postmeta')
@@ -413,13 +406,6 @@ class PostModel extends SY_Model
         return $db->table('term_relationships')
                       ->where('object_id', $postID)
                       ->delete();
-    }
-
-    public function purgeTermRelationships(array $post_ids){
-        $db      = \Config\Database::connect();
-        return $db->table('term_relationships')
-                    ->whereIn('object_id', $post_ids)
-                    ->delete();
     }
 
     public function purgePostMeta(array $post_ids){

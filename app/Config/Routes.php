@@ -82,6 +82,7 @@ $routes->group('api', ['namespace' => '\App\API\v1\Controllers', 'filter' => 'au
 		$routes->get('plugins/(:num)', 'Plugins::index/$1');
 		$routes->get('plugins/(:num)/(:num)', 'Plugins::index/$1/$2');
 		$routes->post('plugins', 'Plugins::install');
+		$routes->put('plugins', 'Plugins::activateDeactivate');
 		$routes->delete('plugins/(:any)', 'Plugins::delete/$1');
 
 		$routes->get('profile', 'Profile::index');

@@ -130,7 +130,7 @@ class PluginsService extends BaseService
         return false;
     }
 
-    private static function save($name, $activate)
+    public static function save($name, $activate, $autoload = true)
     {
         $fromOption = self::getFromOption();
         if (isset($fromOption[$name])) {
@@ -138,7 +138,7 @@ class PluginsService extends BaseService
         } else {
             $fromOption[$name] = $activate ? 'enabled' : 'disabled';
         }
-        return \App\API\v1\Services\OptionsService::save(self::$pluginOptionName, $fromOption, true);
+        return \App\API\v1\Services\OptionsService::save(self::$pluginOptionName, $fromOption, $autoload);
     }
 
     public static function getFromOption()

@@ -5,12 +5,19 @@ class ApiAuthService
     private $errors;
     public function isLoggedIn(): bool
     {
-        $session = \Config\Services::session();
         $request = \Config\Services::apiRequest();
         $token = $request->getToken();
         if(! empty($token) ) {
             $jwtService = \Config\Services::JWT();
             if( $payload = $jwtService::decode($token) ){
+                $payload = (object) $payload;
+                $db = \Config\Database::connect();
+                if($db->table('users')
+                    ->where("user_id", $payload->user->id)
+                    ->where("current_token", $token)
+                    ->countAllResults() === 0){
+                        return false;
+                }
                 if( $this->needRefresh($payload->exp) ){
                     $jwtService::refresh($payload);
                 }
@@ -23,13 +30,24 @@ class ApiAuthService
     }
 
     private function needRefresh($expiration){
-        return false;
+        return ($expiration - time() <= 60);
     }
 
     public function userSessionDestroy()
     {
-        $session = \Config\Services::session();
-        $session->destroy();
+        $request = \Config\Services::apiRequest();
+        $token = $request->getToken();
+        $jwtService = \Config\Services::JWT();
+        $payload = $jwtService::decode($token);
+        $payload = (object) $payload;
+        $db = \Config\Database::connect();
+        $db
+            ->table('users')
+            ->set('current_token', '')
+            ->where('user_id', $payload->user->id)
+            ->update();
+        $jwtService::setLastError(null);
+        return true;
     }
 
     public function errors(){

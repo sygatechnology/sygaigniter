@@ -1,5 +1,5 @@
 <?php
-namespace Plugin\cms;
+namespace Plugin\commerce;
 
 use \Syga\Config\Hooks;
 

@@ -25,11 +25,7 @@ final class Member extends SY_Entity {
     ];
 
     protected $datamap = [
-        'id' => 'user_id',
-        'username' => 'uname',
-        'firstname' => 'fname',
-        'lastname' => 'lname',
-        'password' => 'psswd',
+        
     ];
 
     protected $dates = ['created_at', 'updated_at', 'deleted_at'];
@@ -52,13 +48,25 @@ final class Member extends SY_Entity {
     protected $usePublicAttributes = true;
     protected $publicAttributes = [
         "id",
+        "user_id",
+        "login",
         "email",
-        "username",
-        "firstname",
-        "lastname", /*,
-        "status",
+        "real_name",
+        "birthday",
+        "gender",
+        "item_count",
+        "followers_count",
+        "following_count",
+        "positive_feedback_count",
+        "neutral_feedback_count",
+        "negative_feedback_count",
+        "meeting_transaction_count",
+        "feedback_reputation",
+        "expose_location",
+        "city_id",
         "created_at",
-        "updated_at"*/
+        "updated_at",
+        "last_loged_on"
     ];
 
     // Cette valeur doit être identique

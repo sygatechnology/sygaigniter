@@ -26,6 +26,7 @@ class AuthProviderModel extends Model
     protected $table                = 'users';
     protected $primaryKey           = 'user_id';
 
+    protected $allowedFields        = ['current_token'];
     protected $returnType           = 'App\Entities\User';
     protected $useSoftDeletes       = true;
 
@@ -61,77 +62,57 @@ class AuthProviderModel extends Model
 
     public function authenticate($userName, $password)
     {
-        $jwtService = \Config\Services::JWT();
-        //if( $jwtService::publicTokenExists($publicToken) ){
-            if ($userName !== null && $password !== null) {
-                $row = $this
-                        ->groupStart()
-                            ->where('uname', $userName)
-                            ->orGroupStart()
-                                ->where('email', $userName)
-                            ->groupEnd()
+        if ($userName !== null && $password !== null) {
+            $row = $this
+                    ->groupStart()
+                        ->where('uname', $userName)
+                        ->orGroupStart()
+                            ->where('email', $userName)
                         ->groupEnd()
-                        ->get()
-                        ->getFirstRow();
-                if ($row !== null && is_valid_password($password, $row->psswd)) {
-                    switch ($row->status) {
-                        case 'pending':
-                            $this->sessionDestroy();
-                            $this->successed = false;
-                            $this->error = "User acount not actived";
-                            $this->errorCode = 401;
-                            $this->errorDescription = "access_denied";
-                            break;
-                        case 'deleted':
-                            $this->sessionDestroy();
-                            $this->successed = false;
-                            $this->error = "User acount not found";
-                            $this->errorCode = 404;
-                            $this->errorDescription = "resource_not_found";
-                            break;
-                        default:
-                            $userModel = new UserModel();
-                            $this->user = $userModel->find($row->user_id);
-                            /*$userData = [
-                                'logged_in' => true,
-                                'id' => \is_numeric($row->user_id) ? (int) $row->user_id : $row->user_id,
-                                'email' => $row->email,
-                                'username' => $row->uname,
-                                'firstname' => $row->fname,
-                                'lastname' => $row->lname,
-                                'roles' => $this->user->getRoles(),
-                                'key' => $publicToken
-                            ];
-                            \Config\Services::session()->set($userData);*/
-                            $user = (array) $this->user->getResult();
-                            $user['roles'] = $this->user->getRoles();
-                            $details = (\Config\Services::JWT())::encode($user);
-                            $this->token = $details['jwt'];
-                            $this->tokenExpiration = $details['exp'];
-                            $this->successed = true;
-                            break;
-                    }
-                } else {
-                    $this->sessionDestroy();
-                    $this->successed = false;
-                    $this->error = "Invalid user";
-                    $this->errorCode = 401;
-                    $this->errorDescription = "invalid_client";
+                    ->groupEnd()
+                    ->get()
+                    ->getFirstRow();
+            if ($row !== null && is_valid_password($password, $row->psswd)) {
+                switch ($row->status) {
+                    case 'pending':
+                        $this->successed = false;
+                        $this->error = "User acount not actived";
+                        $this->errorCode = 401;
+                        $this->errorDescription = "access_denied";
+                        break;
+                    case 'deleted':
+                        $this->successed = false;
+                        $this->error = "User acount not found";
+                        $this->errorCode = 404;
+                        $this->errorDescription = "resource_not_found";
+                        break;
+                    default:
+                        $userModel = new UserModel();
+                        $this->user = $userModel->find($row->user_id);
+                        $user = (array) $this->user->getResult();
+                        $user['roles'] = $this->user->getRoles();
+                        $details = (\Config\Services::JWT())::encode($user);
+                        $this->token = $details['jwt'];
+                        $this->tokenExpiration = $details['exp'];
+                        $this->successed = true;
+                        $this
+                            ->set('current_token', $this->token)
+                            ->where('user_id', $row->user_id)
+                            ->update();
+                        break;
                 }
             } else {
-                $this->sessionDestroy();
                 $this->successed = false;
-                $this->error = "Username and/or password NULL";
-                $this->errorCode = 400;
-                $this->errorDescription = "no_data";
+                $this->error = "Invalid user";
+                $this->errorCode = 401;
+                $this->errorDescription = "invalid_client";
             }
-        /*} else {
-            $this->sessionDestroy();
+        } else {
             $this->successed = false;
-            $this->error = "Invalid token";
-            $this->errorCode = 401;
-            $this->errorDescription = "invalid_token";
-        }*/
+            $this->error = "Username and/or password NULL";
+            $this->errorCode = 400;
+            $this->errorDescription = "no_data";
+        }
     }
 
     public function successed(): bool
@@ -165,12 +146,5 @@ class AuthProviderModel extends Model
     public function errorDescription(): string
     {
         return $this->errorDescription;
-    }
-
-    private function sessionDestroy(): void
-    {
-        //\Config\Services::session()->destroy();
-        $this->token = "";
-        $this->tokenExpiration = 0;
     }
 }

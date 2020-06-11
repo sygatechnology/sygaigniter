@@ -58,10 +58,7 @@ class Config extends BasePluginConfig
                 'unsigned' => true,
                 'default' => 0,
             ],
-            'post_date' => [
-                'type' => 'DATETIME',
-                'default' => '0000-00-00 00:00:00',
-            ],
+            'post_date DATETIME DEFAULT CURRENT_TIMESTAMP',
             'post_content' => [
                 'type' => 'LONGTEXT',
                 'collate' => 'utf8mb4_unicode_ci'
@@ -92,10 +89,7 @@ class Config extends BasePluginConfig
                 'collate' => 'utf8mb4_unicode_ci',
                 'default' => '',
             ],
-            'post_modified' => [
-                'type' => 'DATETIME',
-                'default' => '0000-00-00 00:00:00',
-            ],
+            'post_modified DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
             'post_content_filtered' => [
                 'type' => 'LONGTEXT',
                 'collate' => 'utf8mb4_unicode_ci'
@@ -118,8 +112,7 @@ class Config extends BasePluginConfig
                 'default' => 0,
             ],
             'post_deleted' => [
-                'type' => 'DATETIME',
-                'default' => '0000-00-00 00:00:00',
+                'type' => 'DATETIME'
             ],
         ];
         $postForge->addField($postFields);

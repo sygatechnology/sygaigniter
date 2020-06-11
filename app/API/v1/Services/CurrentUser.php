@@ -8,9 +8,12 @@ class CurrentUser
 	{
 		$auth = \Config\Services::auth();
 		if($auth->isLoggedIn()){
-			$session = \Config\Services::session();
+			$request = \Config\Services::apiRequest();
+			$token = $request->getToken();
+			$jwtService = \Config\Services::JWT();
+			$payload = (object) $jwtService::decode($token);
 			$roleSlugs = [];
-			foreach ($session->get('roles') as $slug => $label) {
+			foreach ($payload->user->roles as $slug => $label) {
 				$roleSlugs[] = $slug;
 			}
 			$db = \Config\Database::connect();

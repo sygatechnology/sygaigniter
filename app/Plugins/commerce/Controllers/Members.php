@@ -3,12 +3,11 @@
 namespace App\Plugins\commerce\Controllers;
 
 /**
- * @package    Plugin\cms\Controllers
+ * @package    Plugin\commerce\Controllers
  * @author     SygaTechnology Dev Team
  * @copyright  2019 SygaTechnology Foundation
  */
-use Plugin\cms\Models\TaxonomyModel;
-use Plugin\cms\Models\TermModel;
+use Plugin\commerce\Models\MemberModel;
 use Plugin\cms\Entities\Term;
 
 /**
@@ -21,132 +20,112 @@ use Plugin\cms\Entities\Term;
  */
 
 use App\Controllers\BaseController;
-use \Plugin\cms\Args\TermArgs;
+use App\Entities\User;
+use \App\Models\RoleModel;
+use App\Models\UserModel;
+use Plugin\commerce\Entities\Member;
 
 class Members extends BaseController
 {
     public function index()
     {
-        $params = \Config\Services::apiRequest();
-        $taxonomyVar = $params->getParam('taxonomy');
-        $limitVar = $params->getParam('limit');
-        $offsetVar = $params->getParam('page');
-        $orderVar = $params->getParam('order');
-        $orderSensVar = $params->getParam('order_sens');
-        $taxonomy = !is_null($taxonomyVar) ? $taxonomyVar : '*';
-        $limit = !is_null($limitVar) ? (int) $limitVar : 10;
-        $offset = !is_null($offsetVar) ? (int) $offsetVar : 1;
-        $order = !is_null($orderVar) ? $orderVar : '';
-        $orderSens = !is_null($orderSensVar) ? $orderSensVar : '';
-        $termModel = new TermModel();
-        return $this->respond($termModel->getResult($taxonomy, $limit, $offset, $order, $orderSens), 200);
-    }
-
-    public function show($id = null)
-    {
-        $termModel = new TermModel();
-        $term = $termModel->find($id);
-        if ($term) {
-            return $this->respond($term->getResult(), 200);
+        if ($this->currentUser->isAuthorized("list_users")) {
+            $params = \Config\Services::apiRequest();
+            $statusVar = $params->getParam('status');
+            $limitVar = $params->getParam('limit');
+            $offsetVar = $params->getParam('page');
+            $order = $params->getParam('order');
+            $orderSens = $params->getParam('order_sens');
+            $withDeletedVar = $params->getParam('with_deleted');
+            $deletedOnlyVar = $params->getParam('deleted_only');
+            $account_status = ($statusVar !== null) ? (($statusVar === 'all') ? null : $statusVar) : null;
+            $limit = $limitVar !== null ? (int) $limitVar : 10;
+            $offset = $offsetVar !== null ? (int) $offsetVar : 1;
+            $withDeleted = $withDeletedVar != null ? true : false;
+            $deletedOnly = $deletedOnlyVar != null ? true : false;
+            $memberModel = new MemberModel();
+            return $this->respond($memberModel->getResult($account_status, $limit, $offset, $order, $orderSens, $withDeleted, $deletedOnly), 200);
         }
-        return $this->respond((object) array(), 404);
+        return $this->failForbidden("List users capability required");
     }
 
     public function create()
     {
-        if ($this->currentUser->isAuthorized("edit_term")) {
-
-            $termArgsObject = $this->setArgs();
-
-            if(! $termArgsObject->isValidTerm()){
-                return $this->respond($termArgsObject->errors(), 500);
+        if ($this->currentUser->isAuthorized("create_user")) {
+            $params = \Config\Services::apiRequest();
+            $data = $params->params();
+            $data['role'] = "sc_member";
+            $data['username'] = $data['login'];
+            $data['lastname'] = $data['login'];
+            $user = new User();
+            $user->fill($data);
+            $userModel = new UserModel();
+            if ($userModel->insert($user) === false) {
+                return $this->respond([$userModel->errors()], 400);
             }
-
-            // Term Args
-            $termArgs = $termArgsObject->getArgs();
-
-            // Term Meta Args
-            $termMetaArgs = $termArgsObject->getMetaArgs();
-
-            $term = new Term();
-
-            unset($termArgs['term_id']);
-
-            $termData = [
-                'term_args' => $termArgs,
-                'termmeta_args' => $termMetaArgs
-            ];
-            $term->fillArgs($termData);
-
-            $termModel = new TermModel();
-
-            if ($termModel->insert($term) === false) {
-                return $this->respond([$termModel->errors()], 400);
+            $user_id = $userModel->getInsertID();
+            $data['user_id'] = $user_id;
+            $member = new Member();
+            $member->fill($data);
+            $memberModel = new MemberModel();
+            if ($memberModel->insert($member) === false) {
+                return $this->respond([$memberModel->errors()], 400);
             }
-            return $this->respondCreated(['id' => $termModel->getInsertID()]);
+            $userModel->insertRole($user_id, $data['role']);
+            return $this->respondCreated(['id' => $memberModel->getInsertID()]);
         }
-        return $this->failForbidden("Create term capability required");
+        return $this->failForbidden("Create user capability required");
+    }
+
+    public function show($id = null)
+    {
+        if ($this->currentUser->isAuthorized("list_users")) {
+            $memberModel = new MemberModel();
+            $user = $memberModel->find($id);
+            if ($user) {
+                return $this->respond($user->getResult(), 200);
+            }
+            return $this->respond((object) array(), 404);
+        }
+        return $this->failForbidden("List users capability required");
     }
 
     public function update($id = null)
     {
-        if ($this->currentUser->isAuthorized("edit_term")) {
-
-            $termArgsObject = $this->setArgs($id);
-
-            if(! $termArgsObject->isValidTerm()){
-                return $this->respond($termArgsObject->errors(), 500);
+        if ($this->currentUser->isAuthorized("update_user")) {
+            $params = \Config\Services::apiRequest();
+            $data = $params->params();
+            if ($id !== null) {
+                $user = new User();
+                $user->fill($data);
+                $memberModel = new MemberModel();
+                if ($memberModel->update($id, $user) === false) {
+                    return $this->respond([$memberModel->errors()], 500);
+                }
+                return $this->respond(['User updated'], 200);
             }
-
-            // Term Args
-            $termArgs = $termArgsObject->getArgs();
-
-            // Term Meta Args
-            $termMetaArgs = $termArgsObject->getMetaArgs();
-
-            $term = new Term();
-
-            $termArgs['term_id'] = $termArgsObject->getID();
-
-            $termData = [
-                'term_args' => $termArgs,
-                'termmeta_args' => $termMetaArgs
-            ];
-            $term->fillArgs($termData);
-
-            $termModel = new TermModel();
-
-            if ($termModel->update($termArgsObject->getID(), $term) === false) {
-                return $this->respond([$termModel->errors()], 400);
-            }
-            return $this->respond(['Term updated'], 200);
+            return $this->respond(['Error on request'], 500);
         }
-        return $this->failForbidden("Update term capability required");
-    }
-
-    private function setArgs($id = null){
-        $request = \Config\Services::apiRequest();
-        $termArgsObject = new TermArgs();
-        $termArgsObject->fill($request, $id);
-        return $termArgsObject;
+        return $this->failForbidden("Update user capability required");
     }
 
     public function delete($id = null)
     {
-        if ($this->currentUser->isAuthorized("delete_term")) {
-            if (!is_null($id) && is_numeric($id)) {
-                $id = (int) $id;
-                $termModel = new TermModel();
-                $term = new Term($id);
-                if($term->isNull()) return $this->failNotFound();
-                $termModel->deleteTermRelationships($term->getField( 'term_taxonomy_id' ));
-                $termModel->deleteTermTaxonomy($id);
-                $termModel->deleteTermMeta($id);
-                $termModel->delete($id);
+        if ($this->currentUser->isAuthorized("delete_user")) {
+            if ($id !== null && is_numeric($id)) {
+                $memberModel = new MemberModel();
+                $user = $memberModel->find($id);
+                if (!$user) return $this->failNotFound();
+                $memberModel->delete($id);
                 return $this->respondDeleted(['id' => $id]);
             }
-            return $this->respond(['Term ID requierd'], 500);
+            if ($id !== null && is_string($id) && $id == 'purge') {
+                $memberModel = new MemberModel();
+                $memberModel->purgeDeleted();
+                return $this->respondDeleted(['Deleted users purged']);
+            }
+            return $this->respond(['Error on request'], 500);
         }
-        return $this->failForbidden("Delete term capability required");
+        return $this->failForbidden("Delete user capability required");
     }
 }

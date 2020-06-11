@@ -13,7 +13,7 @@ if(! function_exists('starts_with')){
 }
 
 if(! function_exists('ends_with')){
-    function starts_with($string, $endString)
+    function ends_with($string, $endString)
     {
         return (substr($string, -1) === $endString);
     }

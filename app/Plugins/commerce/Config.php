@@ -2,12 +2,10 @@
 namespace Plugin\commerce;
 
 use \Plugin\BasePluginConfig;
-use \Plugin\crm\Services\ObjectTypesService;
-use \Plugin\crm\Services\TaxonomiesService;
+use \Plugin\cms\Services\ObjectTypesService;
 use \App\Models\RoleModel;
 use \App\Entities\Role;
 use \App\Models\CapabilityModel;
-use CodeIgniter\I18n\Time;
 
 class Config extends BasePluginConfig
 {
@@ -15,10 +13,11 @@ class Config extends BasePluginConfig
     protected $description = "Commerce en ligne";
     protected $version = "1.0.0-alpha.1";
     protected $author = "Syga Technology Team Developer";
+    protected $dependencies = [
+        "cms" => "1.0.0"
+    ];
     protected $helpers = [
-        'functions',
-        'post',
-        'term',
+        'functions'
     ];
 
     public function pluginDidInstall()
@@ -35,11 +34,19 @@ class Config extends BasePluginConfig
     public function pluginDidUninstall()
     {
         $this->deleteOptions();
-        $this->deleteTables();
+        $this->deleteUserPosts();
+        $this->deleteUserMeta();
+        $this->deleteTerms();
+        $this->deleteUsers();
         $this->deleteUserRoles();
         $this->deleteCapabilities();
         $this->deleteRoleCapabilities();
+        $this->deleteTables();
     }
+
+    /**
+     * Installation actions
+     */
 
     private function createTables()
     {
@@ -52,9 +59,9 @@ class Config extends BasePluginConfig
                 'unsigned' => true,
                 'auto_increment' => true
             ],
-            "fire_id" => [
-                'type' => 'TEXT',
-                'collate' => 'utf8mb4_unicode_ci'
+            "user_id" => [
+                'type' => 'BIGINT',
+                'constraint' => 20
             ],
             "login" => [
                 'type' => 'VARCHAR',
@@ -75,8 +82,10 @@ class Config extends BasePluginConfig
                 'default' => ''
             ],
             "birthday" => [
-                'type' => 'DATE',
-                'default' => '0000-00-00'
+                'type' => 'VARCHAR',
+                'constraint' => '20',
+                'collate' => 'utf8mb4_unicode_ci',
+                'default' => ''
             ],
             "gender" => [
                 'type' => 'VARCHAR',
@@ -119,12 +128,6 @@ class Config extends BasePluginConfig
                 'constraint' => 20,
                 'default' => 0
             ],
-            "account_status" => [
-                'type' => 'VARCHAR',
-                'constraint' => '20',
-                'collate' => 'utf8mb4_unicode_ci',
-                'default' => 'pending'
-            ],
             "feedback_reputation" => [
                 'type' => 'BIGINT',
                 'constraint' => 20,
@@ -140,21 +143,11 @@ class Config extends BasePluginConfig
                 'constraint' => 20,
                 'default' => 0
             ],
-            "created_at" => [
-                'type' => 'DATETIME',
-                'default' => '0000-00-00 00:00:00',
-            ],
-            "updated_at" => [
-                'type' => 'DATETIME',
-                'default' => '0000-00-00 00:00:00',
-            ],
-            "last_loged_on" => [
-                'type' => 'DATETIME',
-                'default' => '0000-00-00 00:00:00',
-            ],
+            "created_at DATETIME DEFAULT CURRENT_TIMESTAMP",
+            "updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
+            "last_loged_on DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
             "deleted_at" => [
-                'type' => 'DATETIME',
-                'default' => '0000-00-00 00:00:00',
+                'type' => 'DATETIME'
             ]
         ];
         $userForge->addField($userFields);
@@ -218,10 +211,10 @@ class Config extends BasePluginConfig
             ]
         ];
         $cityForge->addField($cityFields);
-        $termForge->addKey('city_id', TRUE);
-        $termForge->addKey(['name', 'slug']);
-        $termForge->dropTable('sc_cities', TRUE);
-        $termForge->createTable('sc_cities');
+        $cityForge->addKey('city_id', TRUE);
+        $cityForge->addKey(['name', 'slug']);
+        $cityForge->dropTable('sc_cities', TRUE);
+        $cityForge->createTable('sc_cities');
     }
 
     private function registerOptions()
@@ -310,94 +303,49 @@ class Config extends BasePluginConfig
         $db = \Config\Database::connect();
         $termBuilder = $db->table('terms');
 
-        $categoryData = [
+        $termData = [
             [
                 "name" => "Mode",
-                "slug" => "mode"
+                "slug" => "sc-mode"
             ],
             [
                 "name" => "Auto & Industrie",
-                "slug" => "car-industry"
+                "slug" => "sc-car-industry"
             ],
             [
                 "name" => "Immobilier",
-                "slug" => "property"
+                "slug" => "sc-property"
             ],
             [
                 "name" => "Cuisine & Maison",
-                "slug" => "home-kitchen"
+                "slug" => "sc-home-kitchen"
             ],
             [
                 "name" => "High-Tech",
-                "slug" => "high-tech"
+                "slug" => "sc-high-tech"
             ],
             [
                 "name" => "Informatique & Bureau",
-                "slug" => "office-info"
+                "slug" => "sc-office-info"
             ],
             [
                 "name" => "Beauté, Santé & Bien-être",
-                "slug" => "beauty-health-wellness"
+                "slug" => "sc-beauty-health-wellness"
             ],
             [
                 "name" => "Musique, Films & Jeux vidéo",
-                "slug" => "music-films-games"
+                "slug" => "sc-music-films-games"
             ],
             [
                 "name" => "Livres & E-books",
-                "slug" => "books"
+                "slug" => "sc-books"
             ],
             [
                 "name" => "Autres",
-                "slug" => "others"
-            ],
+                "slug" => "sc-others"
+            ]
         ];
-        $termBuilder->insertBatch($categoryData);
-    }
-
-    private function deleteOptions()
-    {
-        /*$names = [
-            'commerce_default_comment_status',
-            'commerce_default_category'
-        ];
-        $optionObject = \Config\Services::options();
-        $optionObject->delete($names);*/
-    }
-
-    private function deleteTables(){
-        $forge = \Config\Database::forge();
-        $forge->dropTable('sc_users', TRUE);
-        $forge->dropTable('sc_cities', TRUE);
-    }
-
-    private function deleteUserRoles(){
-        $roles = [
-            "sc_member"
-        ];
-        $db = \Config\Database::connect();
-        $db->table('roles')->whereIn("slug", $roles)->delete();
-    }
-
-    private function deleteCapabilities(){
-        $caps = [
-            "edit_product",
-            "delete_product",
-            "publish_products",
-            "edit_service",
-            "delete_service",
-            "publish_services"
-        ];
-        $db = \Config\Database::connect();
-        $db->table('capabilities')->whereIn("slug", $caps)->delete();
-    }
-
-    private function deleteRoleCapabilities(){
-        $roles = [
-            "sc_member"
-        ];
-        $db = \Config\Database::connect();
-        $db->table('role_capabilities')->whereIn("role_slug", $roles)->delete();
+        $termBuilder->insertBatch($termData);
     }
 
     public function pluginDidMount()
@@ -428,4 +376,134 @@ class Config extends BasePluginConfig
             'capability_type' => 'post'
         ));
     }
+
+    /**
+     * Uninstallation actions
+     */
+
+    private function deleteOptions()
+    {
+        /*$names = [
+            'commerce_default_comment_status',
+            'commerce_default_category'
+        ];
+        $optionObject = \Config\Services::options();
+        $optionObject->delete($names);*/
+    }
+
+    private function deleteUserPosts()
+    {
+        $db = \Config\Database::connect();
+        $userSubquery = $db
+                            ->table('user_roles')
+                            ->select('user_id')
+                            ->where('role_slug', 'sc_member')
+                            ->getCompiledSelect();
+        $postSubquery = $db
+                            ->table('posts')
+                            ->select('post_id')
+                            ->where("`post_author` IN ($userSubquery)", NULL, FALSE)
+                            ->getCompiledSelect();
+                        
+        $db->table('term_relationships')
+                    ->where("`object_id` IN ($postSubquery)", NULL, FALSE)
+                    ->delete();
+
+        $db->table('postmeta')
+                    ->where("`post_id` IN ($postSubquery)", NULL, FALSE)
+                    ->delete();
+
+        $db->table('posts')
+                    ->where("`post_author` IN ($userSubquery)", NULL, FALSE)
+                    ->delete();
+    }
+
+    private function deleteUserMeta()
+    {
+        /*$db = \Config\Database::connect();
+        $userSubquery = $db
+                            ->table('user_roles')
+                            ->select('user_id')
+                            ->where('role_slug', 'sc_member')
+                            ->getCompiledSelect();*/
+    }
+
+    private function deleteTerms()
+    {
+        $db = \Config\Database::connect();
+        $terms = [
+            "sc-mode",
+            "sc-car-industry",
+            "sc-property",
+            "sc-home-kitchen",
+            "sc-high-tech",
+            "sc-office-info",
+            "sc-beauty-health-wellness",
+            "sc-music-films-games",
+            "sc-books",
+            "sc-others"
+        ];
+        $termSubquery = $db
+                            ->table('terms')
+                            ->select('term_id')
+                            ->whereIn('role_slug', $terms)
+                            ->getCompiledSelect();
+
+        $db->table('term_taxonomies')
+                            ->where("`term_id` IN ($termSubquery)", NULL, FALSE)
+                            ->delete();
+
+        $db->table('terms')->whereIn('slug', $terms)->delete();
+    }
+
+    private function deleteUsers(){
+        $db = \Config\Database::connect();
+        $userSubquery = $db
+                            ->table('user_roles')
+                            ->select('user_id')
+                            ->where('role_slug', 'sc_member')
+                            ->getCompiledSelect();
+
+        $db
+            ->table('users')
+            ->where("`user_id` IN ($userSubquery)", NULL, FALSE)
+            ->delete();
+    }
+
+    private function deleteTables(){
+        $forge = \Config\Database::forge();
+        $forge->dropTable('sc_users', TRUE);
+        $forge->dropTable('sc_usermeta', TRUE);
+        $forge->dropTable('sc_cities', TRUE);
+    }
+
+    private function deleteUserRoles(){
+        $roles = [
+            "sc_member"
+        ];
+        $db = \Config\Database::connect();
+        $db->table('roles')->whereIn("slug", $roles)->delete();
+    }
+
+    private function deleteRoleCapabilities(){
+        $roles = [
+            "sc_member"
+        ];
+        $db = \Config\Database::connect();
+        $db->table('role_capabilities')->whereIn("role_slug", $roles)->delete();
+    }
+
+    private function deleteCapabilities(){
+        $caps = [
+            "edit_product",
+            "delete_product",
+            "publish_products",
+            "edit_service",
+            "delete_service",
+            "publish_services"
+        ];
+        $db = \Config\Database::connect();
+        $db->table('capabilities')->whereIn("slug", $caps)->delete();
+    }
+    
 }
