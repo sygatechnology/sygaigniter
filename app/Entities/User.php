@@ -20,18 +20,14 @@ use \App\Core\SY_Entity;
 class User extends SY_Entity
 {
     protected $attributes = [
-        'lname' => null,
+        'lastname' => null,
         'email' => null,
-        'psswd' => null,
+        'password' => null,
         'status' => "pending",
     ];
 
     protected $datamap = [
-        'id' => 'user_id',
-        'username' => 'uname',
-        'firstname' => 'fname',
-        'lastname' => 'lname',
-        'password' => 'psswd',
+        'id' => 'user_id'
     ];
 
     protected $dates = ['created_at', 'updated_at', 'deleted_at'];
@@ -54,21 +50,25 @@ class User extends SY_Entity
     protected $usePublicAttributes = true;
     protected $publicAttributes = [
         "id",
+        "anon_id",
         "email",
         "username",
         "firstname",
-        "lastname", /*,
+        "lastname",
         "status",
         "created_at",
-        "updated_at"*/
+        "updated_at"
     ];
 
     // Cette valeur doit être identique
     //à celle qui se trouve dans les règles de validation dans le UserModel
     private $minPassordLength = 8;
 
-    public function __construct(array $data = null)
+    public function __construct($data = null)
     {
+        if(NULL !== $data && !is_array($data)){
+            $data = ['id' => (int) $data]; 
+        }
         parent::__construct($data);
         helper('user');
         helper('security');
@@ -76,41 +76,46 @@ class User extends SY_Entity
         $this->nowPlusTwoDays = (new Time('+2 day'))->toDateTimeString();
     }
 
-    public function setPsswd(string $pass)
+    public function setPassword(string $pass)
     {
         $pass = trim($pass);
         if (mb_strlen($pass) >= $this->minPassordLength) {
-            $this->attributes['psswd'] = set_password($pass);
+            $this->attributes['password'] = set_password($pass);
             $this->setResetPsswdToken();
             $this->setResetPsswdValidity();
         } else {
-            $this->attributes['psswd'] = $pass;
+            $this->attributes['password'] = $pass;
         }
         return $this;
     }
 
     public function setUname(string $name)
     {
-        $this->attributes['uname'] = slugify($name, '_');
+        $this->attributes['username'] = slugify($name, '_');
         return $this;
     }
 
     public function setFirstname(string $fname)
     {
-        $this->attributes['fname'] = $fname;
+        $this->attributes['firstname'] = $fname;
         return $this;
     }
 
     public function setLastname(string $lname)
     {
-        $this->attributes['lname'] = $lname;
+        $this->attributes['lastname'] = $lname;
         return $this;
     }
 
     public function getRoles(): array
     {
         $db = \Config\Database::connect();
-        $rows = $db->table('user_roles')->join('roles', 'roles.slug = user_roles.role_slug')->where('user_roles.user_id', $this->attributes['user_id'])->get()->getResult();
+        $rows = $db->table('user_roles')
+                                ->join('roles', 'roles.slug = user_roles.role_slug')
+                                ->where('user_roles.user_id', $this->attributes['user_id'])
+                                ->where('deleted', 0)
+                                ->get()
+                                ->getResult();
         $result = [];
         foreach ($rows as $row) {
             $result[$row->slug] = $row->label;

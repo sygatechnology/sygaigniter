@@ -26,7 +26,7 @@ class UserModel extends SY_Model
     protected $returnType           = 'App\Entities\User';
     protected $useSoftDeletes       = true;
 
-    protected $allowedFields        = ['uname', 'fname', 'lname', 'email', 'psswd', 'status', 'reset_psswd_token', 'reset_psswd_validity'];
+    protected $allowedFields        = ['username', 'firstname', 'lastname', 'email', 'password', 'status', 'reset_psswd_token', 'reset_psswd_validity'];
 
     protected $useTimestamps        = true;
     protected $createdField         = 'created_at';
@@ -35,9 +35,9 @@ class UserModel extends SY_Model
 
     protected $skipValidation       = false;
     protected $validationRules      = [
-        'psswd'       => 'required|min_length[8]',
-        'uname'       => 'required|alpha_numeric_space|min_length[3]|is_unique[users.uname]',
-        'lname'       => 'min_length[3]',
+        'password'       => 'required|min_length[8]',
+        'username'       => 'required|alpha_numeric_space|min_length[3]|is_unique[users.username]',
+        'lastname'       => 'min_length[3]',
         'email'       => 'required|valid_email|is_unique[users.email]'
     ];
 

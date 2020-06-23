@@ -26,7 +26,7 @@ class Auth extends BaseController
             return $this->respond([
                 "message" => "Successful login",
                 "token" => $authProvider->getToken(),
-                "id" => !\is_numeric($authProvider->user()->user_id) ? (int) $authProvider->user()->user_id : $authProvider->user()->user_id,
+                "id" => \is_numeric($authProvider->user()->user_id) ? (int) $authProvider->user()->user_id : $authProvider->user()->user_id,
                 "expireAt" => $authProvider->getTokenExpiration()
             ], 200);
         }

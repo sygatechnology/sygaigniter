@@ -8,10 +8,8 @@ namespace App\Models;
  * @copyright  2019 SygaTechnology Foundation
  */
 
-//use \App\Core\SY_Model;
 use CodeIgniter\Model;
 use \App\Models\UserModel;
-use \App\Entities\User;
 
 /**
  * Class UserModel
@@ -65,14 +63,14 @@ class AuthProviderModel extends Model
         if ($userName !== null && $password !== null) {
             $row = $this
                     ->groupStart()
-                        ->where('uname', $userName)
+                        ->where('username', $userName)
                         ->orGroupStart()
                             ->where('email', $userName)
                         ->groupEnd()
                     ->groupEnd()
                     ->get()
                     ->getFirstRow();
-            if ($row !== null && is_valid_password($password, $row->psswd)) {
+            if ($row !== null && is_valid_password($password, $row->password)) {
                 switch ($row->status) {
                     case 'pending':
                         $this->successed = false;
@@ -90,7 +88,6 @@ class AuthProviderModel extends Model
                         $userModel = new UserModel();
                         $this->user = $userModel->find($row->user_id);
                         $user = (array) $this->user->getResult();
-                        $user['roles'] = $this->user->getRoles();
                         $details = (\Config\Services::JWT())::encode($user);
                         $this->token = $details['jwt'];
                         $this->tokenExpiration = $details['exp'];
