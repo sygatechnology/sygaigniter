@@ -8,6 +8,7 @@
 
 use CodeIgniter\I18n\Time;
 use \App\Core\SY_Entity;
+use \App\Models\RoleModel;
 
 /**
  * Class User
@@ -107,21 +108,13 @@ class User extends SY_Entity
         return $this;
     }
 
-    public function getRoles(): array
+    public function getRoles()
     {
-        $db = \Config\Database::connect();
-        $rows = $db->table('user_roles')
-                                ->join('roles', 'roles.slug = user_roles.role_slug')
-                                ->where('user_roles.user_id', $this->attributes['user_id'])
-                                ->where('deleted', 0)
-                                ->get()
-                                ->getResult();
-        $result = [];
-        foreach ($rows as $row) {
-            $result[$row->slug] = $row->label;
-        }
-        unset($rows);
-        return $result;
+        $roleModel = new RoleModel();
+        return  $roleModel
+                        ->join('ci_user_roles', 'ci_user_roles.role_slug = ci_roles.slug')
+                        ->where('user_roles.user_id', $this->attributes['user_id'])
+                        ->findAll();
     }
 
     private function setResetPsswdToken()

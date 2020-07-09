@@ -55,8 +55,12 @@ class UserModel extends SY_Model
         $rows = [];
         foreach ($dbResult as $user) {
             $uResult = $user->getResult();
-            $uResult['roles'] = $user->getRoles();
-            unset($userRoles);
+            $roles = [];
+            foreach ($user->getRoles() as $role) {
+                $roles[] = $role->getResult();
+            }
+            $uResult['roles'] = $roles;
+            unset($roles);
             $rows[] = $uResult;
             unset($uResult);
         }
