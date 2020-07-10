@@ -39,8 +39,13 @@ class Capabilities extends BaseController
             $withDeleted = !is_null($withDeletedVar) ? true : false;
             $deletedOnly = !is_null($deletedOnlyVar) ? true : false;
             $capabilityModel = new CapabilityModel();
-            $capabilityModel->getResult($limit, $offset, $order, $orderSens, $withDeleted, $deletedOnly);
-            return $this->respond($capabilityModel->getResult($limit, $offset, $order, $orderSens, $withDeleted, $deletedOnly), 200);
+            $capabilityModel
+                ->setLimit($limit, $offset)
+                ->setOrder($order, $orderSens)
+                ->paginateResult();
+            if($deletedOnly) $capabilityModel->onlyDelete();
+            if($withDeleted) $capabilityModel->withDeleted();
+            return $this->respond($capabilityModel->getResult(), 200);
         }
         return $this->failForbidden("List capabilities capability required");
     }

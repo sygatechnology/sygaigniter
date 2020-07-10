@@ -44,24 +44,6 @@ namespace App\Models;
         ]
     ];
 
-    public function getResult(int $limit = null, int $numPage = null, string $order = null, string $order_sens = null, $with_deleted = false, $only_deleted = true)
-    {
-      if ($only_deleted){
-          $this->onlyDeleted();
-      } else {
-          if (!$with_deleted && !$only_deleted) $this->withoutDeleted();
-      }
-      if($order !== null && $order_sens !== null) $this->order_by($order, $order_sens);
-      if ($numPage === null) $numPage = 1;
-      $dbResult = ($limit !== null && $numPage !== null && $numPage > -1) ? $this->findAll($limit, (((int)$numPage-1)*$limit)) : $this->findAll();
-      $rows = [];
-			foreach ($dbResult as $role) {
-				$rows[] = $role->getResult();
-			}
-      $apiResult = \Config\Services::ApiResult();
-      return $apiResult->set($rows, $this->countAllCompiledResults($with_deleted), $limit, $numPage);
-    }
-
     public function getDefault()
     {
       $role = $this->where('is_default', 1)->get()->getResult();

@@ -7,6 +7,9 @@ use CodeIgniter\Validation\ValidationInterface;
 
 class SY_Model extends Model
 {
+
+    protected $afterFind = [];
+
     /**
      * Model constructor.
      *
@@ -18,55 +21,60 @@ class SY_Model extends Model
         parent::__construct($db, $validation);
     }
 
-    /**
-     * Works with the find* methods to return only the rows that
-     * have been deleted.
-     *
-     * @return SY_Model
-     */
-    public function onlyDeleted()
-    {
-        $this->tempUseSoftDeletes = false;
+    protected $paginateResult = false;
+    protected $limit = 20;
+    protected $numPage = 1;
+    protected $offset = 0;
 
-        $this->where($this->table . '.' . $this->deletedField . ' > "0000-00-00 00:00:00"');
+    public function setLimit(int $limit = null, $numPage = 1): SY_Model
+    {
+        if($limit !== null && $numPage !== null && $numPage > -1){
+            $this->limit = $limit;
+            $this->numPage = $numPage;
+            $this->offset = ($numPage === 0 ? 0 : ((int)$numPage-1)*$limit);
+        }
+        return $this;
+    }
+
+    public function setOrder($orderBy, $orderSens): SY_Model
+    {
+        if($orderBy !== null && $orderSens !== null)
+            $this->orderBy($orderBy, $orderSens);
 
         return $this;
     }
 
-    /**
-     * Works with the find* methods to return the rows
-     *
-     * @return SY_Model
-     */
-    public function withoutDeleted()
+    public function setOrderSens(int $orderSens): SY_Model
     {
-        //$this->oRwhere($this->table . '.' . $this->deletedField . ' = "0000-00-00 00:00:00"');
-
+        $this->orderSens = $orderSens;
         return $this;
     }
 
-    public function countAllCompiledResults($withDeleted = false, $where = [])
+    public function paginateResult(): SY_Model
     {
+        $this->afterFind[] = 'setApiResult';
+        $this->paginateResult = true;
+        return $this;
+    }
+
+    protected function setApiResult(array $data)
+    {
+        $lastQuery = $this->getLastQuery()->getQuery();
+        $segment = explode("from", strtolower($lastQuery));
+        $sqlQuery = "select count(*) as count from" . $segment[1];
         $db = \Config\Database::connect();
-        $sqlQuery = "SELECT count(*) AS count FROM " . $this->getPrefix() . $this->table;
-        if (!$withDeleted) {
-            //$where[$this->deletedField . ' ='] = "0000-00-00 00:00:00";
-            $where[$this->deletedField] = 'IS NULL';
-        }
-        if (!empty($where)) {
-            $i = 0;
-            foreach ($where as $key => $value) {
-                $sql = "`".$this->getPrefix().$this->table."`.`".$key."`";
-                $value = is_numeric($value) ? " ".(int) $value : ('is null' != strtolower($value) && 'is not null' != strtolower($value) ? " '".$value."'" : " ".$value);
-                if ($i === 0) {
-                    $sqlQuery .= " WHERE " . $sql . $value;
-                } else {
-                    $sqlQuery .= " AND " . $sql . $value;
-                }
-                $i++;
-            }
-        }
         $result = $db->query($sqlQuery)->getResultArray();
-        return (int) $result[0]['count'];
+        return [
+            'data' => [
+                'data' => $data['data'],
+                'count' => (int) $result[0]['count']
+            ]
+        ];
+    }
+
+    public function getResult() {
+        $result = $this->findAll($this->limit, $this->offset);
+        $apiResult = \Config\Services::ApiResult();
+        return !$this->paginateResult ? $result : $apiResult->set($result['data'], $result['count'], $this->limit, $this->numPage);
     }
 }

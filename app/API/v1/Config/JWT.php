@@ -32,8 +32,8 @@ class JWT extends BaseConfig
      * @var string $nbf "Not before" is a future time when the token will become active
      *
      */
-    // seconds * minutes
-    private $exp = 60 * 30;
+    // seconds * minutes * hours
+    private $exp = 60 * 60 * 8;
 
     /**
      * @var array $publicTokens Public tokens allowed

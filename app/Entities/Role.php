@@ -37,10 +37,8 @@ class Role extends SY_Entity
     protected $dates = ['created_at', 'updated_at', 'deleted_at'];
 
     protected $casts = [
-        'default' => 'boolean',
-        'options' => 'array',
-        'options_object' => 'json',
-        'options_array' => 'json-array'
+        'is_default' => 'boolean',
+        'default' => 'boolean'
     ];
 
     /**
@@ -49,7 +47,7 @@ class Role extends SY_Entity
   	 * @param array|null $data
   	 */
 
-     protected $usePublicAttributes = true;
+     protected $usePublicAttributes = false;
      protected $publicAttributes = [
        "id",
        "slug",

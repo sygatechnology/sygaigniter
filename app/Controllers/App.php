@@ -13,4 +13,9 @@ class App extends BaseController
 		print_r($user->getRoles());
 		echo '</pre>';
 	}
+
+	public function show404()
+	{
+		return $this->failNotFound();
+	}
 }

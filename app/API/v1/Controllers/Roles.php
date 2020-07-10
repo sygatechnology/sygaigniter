@@ -40,7 +40,13 @@ class Roles extends BaseController
             $withDeleted = $withDeletedVar != null ? true : false;
             $deletedOnly = $deletedOnlyVar != null ? true : false;
             $roleModel = new RoleModel();
-            return $this->respond($roleModel->getResult($limit, $offset, $order, $orderSens, $withDeleted, $deletedOnly), 200);
+            $roleModel
+                ->setLimit($limit, $offset)
+                ->setOrder($order, $orderSens)
+                ->paginateResult();
+            if($deletedOnly) $roleModel->onlyDelete();
+            if($withDeleted) $roleModel->withDeleted();
+            return $this->respond($roleModel->getResult(), 200);
         }
         return $this->failForbidden("List roles capability required");
     }

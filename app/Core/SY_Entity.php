@@ -20,7 +20,7 @@ class SY_Entity extends Entity
         parent::__construct($data);
     }
 
-    public function getResult(): array
+    public function getResult()
     {
         if(!is_null($this->storedResult)){
             return $this->storedResult;

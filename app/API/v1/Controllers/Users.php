@@ -42,7 +42,14 @@ class Users extends BaseController
             $withDeleted = $withDeletedVar != null ? true : false;
             $deletedOnly = $deletedOnlyVar != null ? true : false;
             $userModel = new UserModel();
-            return $this->respond($userModel->getResult($status, $limit, $offset, $order, $orderSens, $withDeleted, $deletedOnly), 200);
+            $userModel
+                ->setStatus($status)
+                ->setLimit($limit, $offset)
+                ->setOrder($order, $orderSens)
+                ->paginateResult();
+            if($deletedOnly) $userModel->onlyDelete();
+            if($withDeleted) $userModel->withDeleted();
+            return $this->respond($userModel->getResult(), 200);
         }
         return $this->failForbidden("List users capability required");
     }

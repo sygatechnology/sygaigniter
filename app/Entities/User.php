@@ -33,12 +33,6 @@ class User extends SY_Entity
 
     protected $dates = ['created_at', 'updated_at', 'deleted_at'];
 
-    protected $casts = [
-        'options' => 'array',
-        'options_object' => 'json',
-        'options_array' => 'json-array',
-    ];
-
     /**
      * Allows filling in Entity parameters during construction.
      *
@@ -114,7 +108,7 @@ class User extends SY_Entity
         return  $roleModel
                         ->join('ci_user_roles', 'ci_user_roles.role_slug = ci_roles.slug')
                         ->where('user_roles.user_id', $this->attributes['user_id'])
-                        ->findAll();
+                        ->getResult();
     }
 
     private function setResetPsswdToken()

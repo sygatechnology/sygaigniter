@@ -38,35 +38,15 @@ class UserModel extends SY_Model
         'password'       => 'required|min_length[8]',
         'username'       => 'required|alpha_numeric_space|min_length[3]|is_unique[users.username]',
         'lastname'       => 'min_length[3]',
-        'email'       => 'required|valid_email|is_unique[users.email]'
+        'email'          => 'required|valid_email|is_unique[users.email]'
     ];
 
-    public function getResult(string $status = null, int $limit = null, int $numPage = null, string $order = null, string $order_sens = null, $with_deleted = false, $only_deleted = true)
+    private $status = null;
+
+    public function setStatus($status): UserModel
     {
-        if ($only_deleted){
-            $this->onlyDeleted();
-        } else {
-            if (!$with_deleted && !$only_deleted) $this->withoutDeleted();
-        }
         if ($status !== null) $this->where('status', $status);
-        if ($order !== null && $order_sens !== null) $this->orderBy($order, $order_sens);
-        if ($numPage === null) $numPage = 1;
-        $dbResult = ($limit !== null && $numPage !== null && $numPage > -1) ? $this->findAll($limit, (((int)$numPage-1)*$limit)) : $this->findAll();
-        $rows = [];
-        foreach ($dbResult as $user) {
-            $uResult = $user->getResult();
-            $roles = [];
-            foreach ($user->getRoles() as $role) {
-                $roles[] = $role->getResult();
-            }
-            $uResult['roles'] = $roles;
-            unset($roles);
-            $rows[] = $uResult;
-            unset($uResult);
-        }
-        $apiResult = \Config\Services::ApiResult();
-        $where = (!is_null($status)) ? ['status =' => $status] : [];
-        return $apiResult->set($rows, $this->countAllCompiledResults($with_deleted, $where), $limit, $numPage);
+        return $this;
     }
 
     public function insertRole($user_id, $role_slug)

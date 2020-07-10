@@ -61,7 +61,7 @@ $routes->setDefaultNamespace('App\Controllers');
 $routes->setDefaultController('App');
 $routes->setDefaultMethod('index');
 $routes->setTranslateURIDashes(false);
-$routes->set404Override();
+$routes->set404Override('App\Controllers\App::show404');
 $routes->setAutoRoute(true);
 
 /**
@@ -73,10 +73,10 @@ $routes->setAutoRoute(true);
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
 
-$routes->get('api/auth/signin', '\App\API\v1\Controllers\Auth::authenticate');
-$routes->post('api/auth/signin', '\App\API\v1\Controllers\Auth::authenticate');
-$routes->get('api/auth/validate', '\App\API\v1\Controllers\Auth::activeAccount');
-$routes->group('api', ['namespace' => '\App\API\v1\Controllers', 'filter' => 'authentication'], function($routes)
+$routes->get('auth/signin', '\App\API\v1\Controllers\Auth::authenticate');
+$routes->post('auth/signin', '\App\API\v1\Controllers\Auth::authenticate');
+$routes->get('auth/validate', '\App\API\v1\Controllers\Auth::activeAccount');
+$routes->group('/', ['namespace' => '\App\API\v1\Controllers', 'filter' => 'authentication'], function($routes)
 {
 		$routes->get('plugins', 'Plugins::index');
 		$routes->get('plugins/(:num)', 'Plugins::index/$1');

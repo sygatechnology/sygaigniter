@@ -35,7 +35,10 @@ class CurrentUser
     }
 
     public function getId(){
-        $session = \Config\Services::session();
-        return (int) $session->get('id');
+        $request = \Config\Services::apiRequest();
+		$token = $request->getToken();
+		$jwtService = \Config\Services::JWT();
+		$payload = (object) $jwtService::decode($token);
+		return $payload->user->id;
     }
 }
