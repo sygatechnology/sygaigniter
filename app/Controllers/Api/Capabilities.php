@@ -1,9 +1,9 @@
 <?php
 
-namespace App\API\v1\Controllers;
+namespace App\Controllers\Api;
 
 /**
- * @package    App\Controller\Api
+ * @package    App\Controllers\Api
  * @author     SygaTechnology Dev Team
  * @copyright  2019 SygaTechnology Foundation
  */
@@ -20,9 +20,9 @@ use \App\Entities\Capability;
  * @return CodeIgniter\RESTful\ResourceController
  */
 
-use App\Controllers\BaseController;
+use App\Controllers\Api\ApiBaseController;
 
-class Capabilities extends BaseController
+class Capabilities extends ApiBaseController
 {
     public function index()
     {
@@ -45,7 +45,7 @@ class Capabilities extends BaseController
                 ->paginateResult();
             if($deletedOnly) $capabilityModel->onlyDelete();
             if($withDeleted) $capabilityModel->withDeleted();
-            return $this->respond($capabilityModel->getResult(), 200);
+            return $this->respond($capabilityModel->formatResult(), 200);
         }
         return $this->failForbidden("List capabilities capability required");
     }

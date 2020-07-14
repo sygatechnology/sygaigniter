@@ -1,6 +1,6 @@
 <?php
 
-namespace App\API\v1\Services;
+namespace App\Services;
 
 helper(['functions']);
 

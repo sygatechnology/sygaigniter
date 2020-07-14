@@ -108,7 +108,7 @@ class User extends SY_Entity
         return  $roleModel
                         ->join('ci_user_roles', 'ci_user_roles.role_slug = ci_roles.slug')
                         ->where('user_roles.user_id', $this->attributes['user_id'])
-                        ->getResult();
+                        ->findAll();
     }
 
     private function setResetPsswdToken()

@@ -129,11 +129,6 @@ nb-configuration.xml
 /results/
 /phpunit*.xml
 
-# User Plugins
-#app/Plugins/*
-#!app/Plugins/index.html
-#!app/Plugins/BasePluginConfig.php
-
 
 
 # UI themes
@@ -151,4 +146,4 @@ admin/.DS_Store
 #-------------------------
 # Plugins
 #-------------------------
-app/Plugins/
+app/Plugins/*

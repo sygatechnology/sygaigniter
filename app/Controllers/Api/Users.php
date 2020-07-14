@@ -1,9 +1,9 @@
 <?php
 
-namespace App\API\v1\Controllers;
+namespace App\Controllers\Api;
 
 /**
- * @package    App\Controller\Api
+ * @package    App\Controllers\Api
  * @author     SygaTechnology Dev Team
  * @copyright  2019 SygaTechnology Foundation
  */
@@ -21,9 +21,9 @@ use \App\Entities\User;
  * @return CodeIgniter\RESTful\ResourceController
  */
 
-use App\Controllers\BaseController;
+use App\Controllers\Api\ApiBaseController;
 
-class Users extends BaseController
+class Users extends ApiBaseController
 {
     public function index()
     {
@@ -49,7 +49,7 @@ class Users extends BaseController
                 ->paginateResult();
             if($deletedOnly) $userModel->onlyDelete();
             if($withDeleted) $userModel->withDeleted();
-            return $this->respond($userModel->getResult(), 200);
+            return $this->respond($userModel->formatResult(), 200);
         }
         return $this->failForbidden("List users capability required");
     }

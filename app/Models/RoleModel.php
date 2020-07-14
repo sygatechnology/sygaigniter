@@ -46,7 +46,7 @@ namespace App\Models;
 
     public function getDefault()
     {
-      $role = $this->where('is_default', 1)->get()->getResult();
+      $role = $this->where('is_default', 1)->get()->findAll();
       return (count($role) > 0) ? $role[0]->slug : null;
     }
 

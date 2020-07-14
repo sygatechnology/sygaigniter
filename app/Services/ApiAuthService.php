@@ -1,4 +1,6 @@
-<?php namespace App\API\v1\Services;
+<?php 
+
+namespace App\Services;
 
 class ApiAuthService
 {

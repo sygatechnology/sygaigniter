@@ -1,18 +1,18 @@
 <?php
 
-namespace App\API\v1\Controllers;
+namespace App\Controllers\Api;
 
 /**
- * @package    App\Controller\Api
+ * @package    App\Controllers\Api
  * @author     SygaTechnology Dev Team
  * @copyright  2019 SygaTechnology Foundation
  */
 
-use App\Controllers\BaseController;
-use \App\API\v1\Services\FilesService;
-use App\API\v1\Services\PluginsService;
+use App\Controllers\Api\ApiBaseController;
+use \App\Services\FilesService;
+use App\Services\PluginsService;
 
-class Plugins extends BaseController
+class Plugins extends ApiBaseController
 {
     public function index()
     {

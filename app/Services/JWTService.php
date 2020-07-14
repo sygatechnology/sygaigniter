@@ -1,4 +1,6 @@
-<?php namespace App\API\v1\Services;
+<?php 
+
+namespace App\Services;
 
 use \Firebase\JWT\JWT;
 
@@ -21,7 +23,7 @@ class JWTService
      */
     public static function encode($userData)
     {
-        $JWTConfig = new \Syga\Config\JWT();
+        $JWTConfig = new \Config\JWT();
         $time = time();
         $iss =  $JWTConfig->getIssuer();
         $aud =  $JWTConfig->getAudience();
@@ -52,7 +54,7 @@ class JWTService
      */
     public static function decode($jwt)
     {
-        $JWTConfig = new \Syga\Config\JWT();
+        $JWTConfig = new \Config\JWT();
         try{
             return JWT::decode($jwt, $JWTConfig->getKey(), array('HS256'));
         } catch(\Exception $e){
@@ -80,7 +82,7 @@ class JWTService
     }
 
     public static function publicTokenExists($publicToken){
-        $JWTConfig = new \Syga\Config\JWT();
+        $JWTConfig = new \Config\JWT();
         return in_array($publicToken, $JWTConfig->getPublicTokens());
     }
 

@@ -1,10 +1,10 @@
 <?php namespace App\Controllers;
 
-use App\Controllers\BaseController;
+use App\Controllers\Api\ApiBaseController;
 use App\Entities\User;
 use \Firebase\JWT\JWT;
 
-class App extends BaseController
+class App extends ApiBaseController
 {
 	public function index()
 	{

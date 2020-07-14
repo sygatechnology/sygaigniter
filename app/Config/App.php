@@ -265,4 +265,7 @@ class App extends BaseConfig
 	|   - http://www.w3.org/TR/CSP/
 	*/
 	public $CSPEnabled = false;
+
+	// Api Route Endpoint
+	public $apiRouteEndpoint = "/";
 }

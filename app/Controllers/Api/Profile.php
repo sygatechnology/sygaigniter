@@ -1,9 +1,9 @@
 <?php
 
-namespace App\API\v1\Controllers;
+namespace App\Controllers\Api;
 
 /**
- * @package    App\Controller\Api
+ * @package    App\Controllers\Api
  * @author     SygaTechnology Dev Team
  * @copyright  2019 SygaTechnology Foundation
  */
@@ -21,9 +21,9 @@ use \App\Entities\User;
  * @return CodeIgniter\RESTful\ResourceController
  */
 
-use App\Controllers\BaseController;
+use App\Controllers\Api\ApiBaseController;
 
-class Profile extends BaseController
+class Profile extends ApiBaseController
 {
     public function index()
     {

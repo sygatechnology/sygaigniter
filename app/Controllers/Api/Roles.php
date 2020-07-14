@@ -1,9 +1,9 @@
 <?php
 
-namespace App\API\v1\Controllers;
+namespace App\Controllers\Api;
 
 /**
- * @package    App\Controller\Api
+ * @package    App\Controllers\Api
  * @author     SygaTechnology Dev Team
  * @copyright  2019 SygaTechnology Foundation
  */
@@ -21,9 +21,9 @@ use \Plugin\cms\Services\ObjectTypesService;
  * @return CodeIgniter\RESTful\ResourceController
  */
 
-use App\Controllers\BaseController;
+use App\Controllers\Api\ApiBaseController;
 
-class Roles extends BaseController
+class Roles extends ApiBaseController
 {
     public function index()
     {
@@ -46,7 +46,7 @@ class Roles extends BaseController
                 ->paginateResult();
             if($deletedOnly) $roleModel->onlyDelete();
             if($withDeleted) $roleModel->withDeleted();
-            return $this->respond($roleModel->getResult(), 200);
+            return $this->respond($roleModel->formatResult(), 200);
         }
         return $this->failForbidden("List roles capability required");
     }

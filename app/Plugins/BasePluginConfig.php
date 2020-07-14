@@ -1,6 +1,6 @@
 <?php
     namespace Plugin;
-    use App\API\v1\Services\PluginsService;
+    use App\Services\PluginsService;
     abstract class BasePluginConfig {
 
         protected $name = "";

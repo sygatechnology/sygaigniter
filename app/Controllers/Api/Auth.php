@@ -1,4 +1,6 @@
-<?php namespace App\API\v1\Controllers;
+<?php 
+
+namespace App\Controllers\Api;
 
 /**
  * @package    App\Controller\Api
@@ -6,10 +8,10 @@
  * @copyright  2019 SygaTechnology Foundation
  */
 
-use App\Controllers\BaseController;
+use App\Controllers\Api\ApiBaseController;
 use CodeIgniter\I18n\Time;
 
-class Auth extends BaseController
+class Auth extends ApiBaseController
 {
     public function authenticate()
     {

@@ -21,32 +21,32 @@ class Services extends CoreServices
 {
     public static function auth()
     {
-        return new \App\API\v1\Services\ApiAuthService();
+        return new \App\Services\ApiAuthService();
     }
 
     public static function apiRequest()
     {
-        return new \App\API\v1\Services\ApiRequestService();
+        return new \App\Services\ApiRequestService();
     }
 
     public static function ApiResult()
     {
-        return new \App\API\v1\Services\ApiResultService();
+        return new \App\Services\ApiResultService();
     }
 
     public static function currentUser()
     {
-        return new \App\API\v1\Services\CurrentUser();
+        return new \App\Services\CurrentUser();
     }
 
     public static function options()
     {
-        return new \App\API\v1\Services\OptionsService();
+        return new \App\Services\OptionsService();
     }
 
     public static function JWT()
     {
-        return new \App\API\v1\Services\JWTService();
+        return new \App\Services\JWTService();
     }
 
 }

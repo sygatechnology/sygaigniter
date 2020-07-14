@@ -1,7 +1,7 @@
 <?php
-	$routes->get('api/auth/sigin', 'App\API\v1\Controllers\Auth::authenticate');
-	$routes->get('api/auth/validate', 'App\API\v1\Controllers\Auth::activeAccount');
-	$routes->group('api', ['namespace' => 'App\API\v1\Controllers', 'filter' => 'api-auth'], function($routes)
+	$routes->get('api/auth/sigin', 'App\Controllers\Auth::authenticate');
+	$routes->get('api/auth/validate', 'App\Controllers\Auth::activeAccount');
+	$routes->group('api', ['namespace' => 'App\Controllers', 'filter' => 'api-auth'], function($routes)
 	{
 			$routes->get('profile', 'Profile::index');
 			$routes->put('profile', 'Profile::up');

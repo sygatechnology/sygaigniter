@@ -1,4 +1,4 @@
-<?php namespace Syga\Config;
+<?php namespace Config;
 
 class Hooks {
 

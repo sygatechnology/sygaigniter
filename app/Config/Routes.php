@@ -73,10 +73,12 @@ $routes->setAutoRoute(true);
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
 
-$routes->get('auth/signin', '\App\API\v1\Controllers\Auth::authenticate');
-$routes->post('auth/signin', '\App\API\v1\Controllers\Auth::authenticate');
-$routes->get('auth/validate', '\App\API\v1\Controllers\Auth::activeAccount');
-$routes->group('/', ['namespace' => '\App\API\v1\Controllers', 'filter' => 'authentication'], function($routes)
+$app = new \Config\App();
+
+$routes->get('auth/signin', '\App\Controllers\Api\Auth::authenticate');
+$routes->post('auth/signin', '\App\Controllers\Api\Auth::authenticate');
+$routes->get('auth/validate', '\App\Controllers\Api\Auth::activeAccount');
+$routes->group($app->apiRouteEndpoint, ['namespace' => '\App\Controllers\Api', 'filter' => 'authentication'], function($routes)
 {
 		$routes->get('plugins', 'Plugins::index');
 		$routes->get('plugins/(:num)', 'Plugins::index/$1');
@@ -100,7 +102,7 @@ $routes->group('/', ['namespace' => '\App\API\v1\Controllers', 'filter' => 'auth
 		$routes->get('auth/signout', 'Auth::logout');
 });
 
-$plugins = \App\API\v1\Services\PluginsService::get('enabled', 0);
+$plugins = \App\Services\PluginsService::get('enabled', 0);
 global $_ENABLED_PLUGINS;
 $_ENABLED_PLUGINS = $plugins['data'];
 foreach ($plugins['data'] as $plugin) {

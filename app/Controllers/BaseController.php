@@ -14,43 +14,33 @@ namespace App\Controllers;
  * @package CodeIgniter
  */
 
-use CodeIgniter\RESTful\ResourceController;
+use CodeIgniter\Controller;
 
-class BaseController extends ResourceController
+class BaseController extends Controller
 {
-    /**
-     * An array of modules to be loaded automatically upon
-     * class instantiation. These helpers will be available
-     * to all other controllers that extend BaseController.
-     *
-     * @var array
-     */
-    protected $modules = [];
 
-    /**
-     * An array of helpers to be loaded automatically upon
-     * class instantiation. These helpers will be available
-     * to all other controllers that extend BaseController.
-     *
-     * @var array
-     */
-    protected $helpers = [];
+	/**
+	 * An array of helpers to be loaded automatically upon
+	 * class instantiation. These helpers will be available
+	 * to all other controllers that extend BaseController.
+	 *
+	 * @var array
+	 */
+	protected $helpers = [];
 
-    protected $currentUser;
+	/**
+	 * Constructor.
+	 */
+	public function initController(\CodeIgniter\HTTP\RequestInterface $request, \CodeIgniter\HTTP\ResponseInterface $response, \Psr\Log\LoggerInterface $logger)
+	{
+		// Do Not Edit This Line
+		parent::initController($request, $response, $logger);
 
-    /**
-     * Constructor.
-     */
-    public function initController(\CodeIgniter\HTTP\RequestInterface $request, \CodeIgniter\HTTP\ResponseInterface $response, \Psr\Log\LoggerInterface $logger)
-    {
-        // Do Not Edit This Line
-        parent::initController($request, $response, $logger);
-        $response->setHeader('Test', 'Token');
-        $this->currentUser = \Config\Services::currentUser();
-        //--------------------------------------------------------------------
-        // Preload any models, libraries, etc, here.
-        //--------------------------------------------------------------------
-        
-    }
+		//--------------------------------------------------------------------
+		// Preload any models, libraries, etc, here.
+		//--------------------------------------------------------------------
+		// E.g.:
+		// $this->session = \Config\Services::session();
+	}
 
 }

@@ -1,7 +1,9 @@
-<?php namespace App\API\v1\Services;
+<?php 
+
+namespace App\Services;
 
 use CodeIgniter\Config\BaseService;
-use \App\API\v1\Services\FilesService;
+use \App\Services\FilesService;
 
 class PluginsService extends BaseService
 {
@@ -138,12 +140,12 @@ class PluginsService extends BaseService
         } else {
             $fromOption[$name] = $activate ? 'enabled' : 'disabled';
         }
-        return \App\API\v1\Services\OptionsService::save(self::$pluginOptionName, $fromOption, $autoload);
+        return \App\Services\OptionsService::save(self::$pluginOptionName, $fromOption, $autoload);
     }
 
     public static function getFromOption()
     {
-        $fromOption = \App\API\v1\Services\OptionsService::get(self::$pluginOptionName);
+        $fromOption = \App\Services\OptionsService::get(self::$pluginOptionName);
         return ($fromOption != null) ? $fromOption : [];
     }
 
@@ -182,7 +184,7 @@ class PluginsService extends BaseService
     {
         $fromOption = self::getFromOption();
         unset($fromOption[$name]);
-        \App\API\v1\Services\OptionsService::update(self::$pluginOptionName, $fromOption);
+        \App\Services\OptionsService::update(self::$pluginOptionName, $fromOption);
         if (file_exists(PLUGINS_PATH . $name)) {
             $config = self::config($name);
             if ($config) {

@@ -72,7 +72,7 @@ class SY_Model extends Model
         ];
     }
 
-    public function getResult() {
+    public function formatResult() {
         $result = $this->findAll($this->limit, $this->offset);
         $apiResult = \Config\Services::ApiResult();
         return !$this->paginateResult ? $result : $apiResult->set($result['data'], $result['count'], $this->limit, $this->numPage);

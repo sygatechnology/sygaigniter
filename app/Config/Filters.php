@@ -18,7 +18,7 @@ class Filters extends BaseConfig
 		'csrf'     => \CodeIgniter\Filters\CSRF::class,
 		'toolbar'  => \CodeIgniter\Filters\DebugToolbar::class,
         'honeypot' => \CodeIgniter\Filters\Honeypot::class,
-        'authentication' => \Syga\Filters\ApiAuth::class,
+        'authentication' => \App\Filters\ApiAuth::class,
 	];
 
 	// Always applied before every request
@@ -52,7 +52,7 @@ class Filters extends BaseConfig
                 require PLUGINS_PATH  . $plugin['dir'] . DIRECTORY_SEPARATOR . 'Filters.php';
                 $class = '\Plugin\\' . $plugin['dir'] . '\\Filters';
                 $Hooks = new $class();
-                if( is_subclass_of( $Hooks, '\Syga\\Config\\Hooks' ) ){
+                if( is_subclass_of( $Hooks, '\\Config\\Hooks' ) ){
                     $this->aliases = $Hooks->setAliases($this->aliases);
                     $this->globals = $Hooks->setGlobals($this->globals);
                     $this->methods = $Hooks->setMethods($this->methods);

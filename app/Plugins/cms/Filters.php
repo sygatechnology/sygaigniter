@@ -1,7 +1,7 @@
 <?php
 namespace Plugin\cms;
 
-use \Syga\Config\Hooks;
+use \Config\Hooks;
 
 class Filters extends Hooks {
     // Makes reading things below nicer,
