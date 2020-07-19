@@ -42,19 +42,6 @@ class User extends SY_Entity
     protected $now;
     protected $nowPlusTwoDays;
 
-    protected $usePublicAttributes = true;
-    protected $publicAttributes = [
-        "id",
-        "anon_id",
-        "email",
-        "username",
-        "firstname",
-        "lastname",
-        "status",
-        "created_at",
-        "updated_at"
-    ];
-
     // Cette valeur doit être identique
     //à celle qui se trouve dans les règles de validation dans le UserModel
     private $minPassordLength = 8;
@@ -107,7 +94,7 @@ class User extends SY_Entity
         $roleModel = new RoleModel();
         return  $roleModel
                         ->join('ci_user_roles', 'ci_user_roles.role_slug = ci_roles.slug')
-                        ->where('user_roles.user_id', $this->attributes['user_id'])
+                        ->where('user_roles.user_id', $this->getId())
                         ->findAll();
     }
 
@@ -119,5 +106,9 @@ class User extends SY_Entity
     private function setResetPsswdValidity()
     {
         $this->attributes['reset_psswd_validity'] = $this->nowPlusTwoDays;
+    }
+
+    public function getId(){
+        return $this->attributes['user_id'];
     }
 }

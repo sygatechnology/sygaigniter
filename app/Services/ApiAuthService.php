@@ -9,8 +9,8 @@ class ApiAuthService
     {
         $request = \Config\Services::apiRequest();
         $token = $request->getToken();
+        $jwtService = \Config\Services::JWT();
         if(! empty($token) ) {
-            $jwtService = \Config\Services::JWT();
             if( $payload = $jwtService::decode($token) ){
                 $payload = (object) $payload;
                 $db = \Config\Database::connect();
@@ -28,6 +28,7 @@ class ApiAuthService
             }
             $this->errors = $jwtService::getLastError();
         }
+        $this->errors = "Acces token required";
         return false;
     }
 

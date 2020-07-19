@@ -20,11 +20,11 @@ use Plugin\cms\Entities\Post;
  * @return CodeIgniter\RESTful\ResourceController
  */
 
-use App\Controllers\BaseController;
+use App\Controllers\Api\ApiBaseController;
 use \Plugin\cms\Services\ObjectTypesService;
 use \Plugin\cms\Args\PostArgs;
 
-class Posts extends BaseController
+class Posts extends ApiBaseController
 {
     public function index()
     {
@@ -36,13 +36,28 @@ class Posts extends BaseController
         $orderSens = $params->getParam('order_sens');
         $withDeletedVar = $params->getParam('with_deleted');
         $deletedOnlyVar = $params->getParam('deleted_only');
-        $status = is_null($statusVar) ? '*' : $statusVar;
+        $status = ($statusVar !== null) ? (($statusVar === 'all') ? null : $statusVar) : null;
         $limit = $limitVar !== null ? (int) $limitVar : 10;
         $offset = $offsetVar !== null ? (int) $offsetVar : 1;
         $withDeleted = $withDeletedVar != null ? true : false;
         $deletedOnly = $deletedOnlyVar != null ? true : false;
         $postModel = new PostModel();
-        return $this->respond($postModel->getResult($status, $limit, $offset, $order, $orderSens, $withDeleted, $deletedOnly), 200);
+        $postModel
+                ->setStatus($status)
+                ->setLimit($limit, $offset)
+                ->setOrder($order, $orderSens)
+                ->paginateResult();
+        if($deletedOnly) $postModel->onlyDelete();
+        if($withDeleted) $postModel->withDeleted();
+        $result = $postModel->formatResult();
+        $db = \Config\Database::connect();
+        $data = [];
+        foreach($result['data'] as $post){
+            $post->taxonomies = $post->getTaxonomies();
+            $data[] = $post;
+        }
+        $result['data'] = $data;
+        return $this->respond($result, 200);
     }
 
     public function show($id = null)

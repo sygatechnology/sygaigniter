@@ -20,10 +20,10 @@ use Plugin\cms\Entities\Term;
  * @return CodeIgniter\RESTful\ResourceController
  */
 
-use App\Controllers\BaseController;
+use App\Controllers\Api\ApiBaseController;
 use \Plugin\cms\Args\TermArgs;
 
-class Terms extends BaseController
+class Terms extends ApiBaseController
 {
     public function index()
     {
@@ -39,7 +39,12 @@ class Terms extends BaseController
         $order = !is_null($orderVar) ? $orderVar : '';
         $orderSens = !is_null($orderSensVar) ? $orderSensVar : '';
         $termModel = new TermModel();
-        return $this->respond($termModel->getResult($taxonomy, $limit, $offset, $order, $orderSens), 200);
+        $termModel
+                ->setLimit($limit, $offset)
+                ->setOrder($order, $orderSens)
+                ->paginateResult();
+        $result = $termModel->formatResult();
+        return $this->respond($result, 200);
     }
 
     public function show($id = null)

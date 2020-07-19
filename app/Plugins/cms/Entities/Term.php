@@ -30,12 +30,6 @@ final class Term extends SY_Entity {
         'parent'        => ''
     ];
 
-    protected $casts = [
-        'options' => 'array',
-        'options_object' => 'json',
-        'options_array' => 'json-array',
-    ];
-
     /**
      * Allows filling in Entity parameters during construction.
      *
@@ -45,18 +39,9 @@ final class Term extends SY_Entity {
     protected $now;
     protected $nowPlusTwoDays;
 
-    protected $usePublicAttributes = true;
-    protected $publicAttributes = [
-        'term_id',
-        'name',
-        'slug',
-        'taxonomy',
-        'description',
-        'parent',
-        'count'
+    protected $casts = [
+        "object_id" => "int"
     ];
-
-    protected $dataFilled;
 
     /**
      * Contructor
@@ -86,10 +71,6 @@ final class Term extends SY_Entity {
             }
             $this->$key = (array) $data[$key];
         }
-    }
-
-    public function getFilled(){
-        return $this->dataFilled;
     }
 
     private function setFromDb($termID){

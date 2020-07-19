@@ -8,6 +8,7 @@
 
 use \App\Core\SY_Entity;
 use CodeIgniter\I18n\Time;
+use \Plugin\cms\Services\TaxonomiesService;
 
 /**
  * Class User
@@ -35,13 +36,18 @@ final class Post extends SY_Entity {
         'post_parent'           => 0
     ];
 
-    protected $dates = ['post_date', 'post_modified', 'post_deleted'];
+    protected $datamap = [
+        'ID' => 'post_id'
+    ];
 
     protected $casts = [
-        'options' => 'array',
-        'options_object' => 'json',
-        'options_array' => 'json-array',
+        "post_id" => "int",
+        "post_parent" => "int",
+        "comment_count" => "int",
+        "post_author" => "int"
     ];
+
+    protected $dates = ['post_date', 'post_modified', 'post_deleted'];
 
     /**
      * Allows filling in Entity parameters during construction.
@@ -51,26 +57,6 @@ final class Post extends SY_Entity {
 
     protected $now;
     protected $nowPlusTwoDays;
-
-    protected $usePublicAttributes = true;
-    protected $publicAttributes = [
-        'post_id',
-        'post_author',
-        'post_content',
-        'post_excerpt',
-        'post_content_filtered',
-        'post_title',
-        'post_status',
-        'post_type',
-        'comment_status',
-        'post_parent',
-        'post_name',
-        'comment_count',
-        'post_date',
-        'post_modified'
-    ];
-
-    protected $dataFilled;
 
     /**
      * Contructor
@@ -103,15 +89,11 @@ final class Post extends SY_Entity {
         }
     }
 
-    public function getFilled(){
-        return $this->dataFilled;
-    }
-
     private function setFromDb($postID){
         $db = \Config\Database::connect();
-        $row = $db->table('posts')->where('post_id', $postID)->limit(1)->get()->getRowArray();
+        $row = $db->table('posts')->where('post_id', $postID)->get()->findAll();
         if(! empty($row)){
-            $this->postFromDb = (array) $row;
+            $this->postFromDb = $row;
         } else {
             $this->postFromDb = null;
             $this->errorsList = 'Invalid post ID.';
@@ -138,6 +120,25 @@ final class Post extends SY_Entity {
             throw new \InvalidArgumentException('The post is null.');
         }
         return isset($this->postFromDb[$fieldName]) ? $this->postFromDb[$fieldName] : null;
+    }
+
+    public function getTaxonomies(){
+        $taxonomies = [];
+        foreach (TaxonomiesService::get() as $taxonomy) {
+            $taxonomy->terms = $this->getTerms($taxonomy->name);
+            $taxonomies[] = $taxonomy;
+        }
+        return $taxonomies;
+    }
+
+    private function getTerms(string $taxonomy){
+        $db = \Config\Database::connect();
+        return $db->table('term_relationships')
+            ->where('object_id', $this->attributes['post_id'])
+            ->where('term_taxonomies.taxonomy', $taxonomy)
+            ->join("term_taxonomies", "term_taxonomies.term_taxonomy_id = term_relationships.term_taxonomy_id")
+            ->join("terms", "terms.term_id = term_taxonomies.term_id")
+            ->get()->getresult();
     }
 
 }

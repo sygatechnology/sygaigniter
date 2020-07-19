@@ -5,7 +5,7 @@ use \Plugin\cms\Entities\Taxonomy;
 
 class TaxonomiesService extends BaseService
 {
-    static protected $syga_taxonomies = [];
+    static protected $taxonomies = [];
 
     public static function register($taxonomy, $objectType, $args)
     {
@@ -20,7 +20,7 @@ class TaxonomiesService extends BaseService
 
         $taxonomyObject = new Taxonomy( $taxonomy, $objectType, $args );
 
-        self::$syga_taxonomies[ $taxonomy ] = $taxonomyObject;
+        self::$taxonomies[ $taxonomy ] = $taxonomyObject;
     }
 
     public static function get($taxonomy = null)
@@ -28,20 +28,20 @@ class TaxonomiesService extends BaseService
         if(! is_null($taxonomy)){
             $taxonomy = trim($taxonomy);
             if(self::exists($taxonomy)){
-                return self::$syga_taxonomies[$taxonomy];
+                return self::$taxonomies[$taxonomy];
             }
             throw new \InvalidArgumentException('Taxonomy '. $taxonomy.' does not exists.');
             exit;
         }
-        return self::$syga_taxonomies;
+        return self::$taxonomies;
     }
 
     public static function exists($taxonomy){
-        return isset(self::$syga_taxonomies[$taxonomy]);
+        return isset(self::$taxonomies[$taxonomy]);
     }
 
     public static function registerObjectType($taxonomy, $objectType){
-        self::$syga_taxonomies[$taxonomy]->object_type[] = $objectType;
+        self::$taxonomies[$taxonomy]->object_type[] = $objectType;
     }
 
     /**
@@ -66,7 +66,7 @@ class TaxonomiesService extends BaseService
         if(is_string($object)){
             $object = [$object];
         }
-        foreach ( (array) self::$syga_taxonomies as $tax_name => $tax_obj ) {
+        foreach ( (array) self::$taxonomies as $tax_name => $tax_obj ) {
             if ( array_intersect( $object, (array) $tax_obj->object_type ) ) {
                 if ( 'names' == $output ) {
                     $taxonomies[] = $tax_name;
@@ -108,12 +108,12 @@ class TaxonomiesService extends BaseService
             return false;
         }
 
-        $key = array_search( $object_type, self::$syga_taxonomies[ $taxonomy ]->object_type, true );
+        $key = array_search( $object_type, self::$taxonomies[ $taxonomy ]->object_type, true );
         if ( false === $key ) {
             return false;
         }
 
-        unset( self::$syga_taxonomies[ $taxonomy ]->object_type[ $key ] );
+        unset( self::$taxonomies[ $taxonomy ]->object_type[ $key ] );
 
         return true;
     }

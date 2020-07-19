@@ -29,7 +29,8 @@ class Profile extends ApiBaseController
     {
         $userModel = new UserModel();
         $user = $userModel->find(\Config\Services::currentUser()->getId());
-        return $this->respond($user->getResult(), 200);
+        $user->roles = $user->getRoles();
+        return $this->respond($user, 200);
     }
 
     public function up()

@@ -108,7 +108,7 @@ $_ENABLED_PLUGINS = $plugins['data'];
 foreach ($plugins['data'] as $plugin) {
 	if(file_exists(PLUGINS_PATH . $plugin['dir'] . '/Routes.php')){
 		$routes->apiPluginDir = $plugin['dir'];
-		$routes->group('api', ['namespace' => '\App\Plugins\\'.$plugin['dir'].'\Controllers'], function($routes)
+		$routes->group($app->apiRouteEndpoint, ['namespace' => '\App\Plugins\\'.$plugin['dir'].'\Controllers'], function($routes)
 		{
 			require PLUGINS_PATH  . $routes->apiPluginDir . '/Routes.php';
 		});

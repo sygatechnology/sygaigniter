@@ -41,20 +41,6 @@ class Role extends SY_Entity
         'default' => 'boolean'
     ];
 
-    /**
-  	 * Allows filling in Entity parameters during construction.
-  	 *
-  	 * @param array|null $data
-  	 */
-
-     protected $usePublicAttributes = false;
-     protected $publicAttributes = [
-       "id",
-       "slug",
-       "label",
-       "default"
-     ];
-
     public function setLabel(string $label)
     {
         helper('inflector');

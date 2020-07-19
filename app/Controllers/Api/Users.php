@@ -49,7 +49,15 @@ class Users extends ApiBaseController
                 ->paginateResult();
             if($deletedOnly) $userModel->onlyDelete();
             if($withDeleted) $userModel->withDeleted();
-            return $this->respond($userModel->formatResult(), 200);
+            $result = $userModel->formatResult();
+            $db = \Config\Database::connect();
+            $data = [];
+            foreach($result['data'] as $user){
+                $user->roles = $user->getRoles();
+                $data[] = $user;
+            }
+            $result['data'] = $data;
+            return $this->respond($result, 200);
         }
         return $this->failForbidden("List users capability required");
     }

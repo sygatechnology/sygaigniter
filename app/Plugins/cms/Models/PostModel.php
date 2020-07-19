@@ -50,25 +50,10 @@ class PostModel extends SY_Model
         'post_type'       => 'required'
     ];
 
-    public function getResult($status = '*', $limit = 0, $numPage = 1, $order = '', $order_sens = '', $with_deleted = false, $only_deleted = true)
+    public function setStatus($status): PostModel
     {
-        if ($only_deleted){
-            $this->onlyDeleted();
-        }
-        if (! empty($status) && $status !== '*') $this->where('post_status', $status);
-        if (! empty($order) && ! empty($order_sens)) $this->orderBy($order, $order_sens);
-        $dbResult = ($limit > 0 && $numPage > 0) ? $this->findAll($limit, (((int)$numPage-1)*$limit)) : $this->findAll();
-        $rows = [];
-        foreach ($dbResult as $post) {
-            $uResult = $post->getResult();
-            /*$uResult['categories'] = $post->getTaxonomies('category');
-            $uResult['tags'] = $post->getTaxonomies('tag');*/
-            $rows[] = $uResult;
-            unset($uResult);
-        }
-        $apiResult = \Config\Services::ApiResult();
-        $where = (! empty($status) && $status !== '*') ? ['post_status =' => $status] : [];
-        return $apiResult->set($rows, $this->countAllCompiledResults($with_deleted, $where), $limit, $numPage);
+        if ($status !== null) $this->where('post_status', $status);
+        return $this;
     }
 
     /**

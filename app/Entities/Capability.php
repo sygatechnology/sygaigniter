@@ -32,25 +32,6 @@ class Capability extends SY_Entity
 
     protected $dates = ['deleted_at'];
 
-    protected $casts = [
-      'options' => 'array',
-      'options_object' => 'json',
-      'options_array' => 'json-array'
-    ];
-
-    /**
-  	 * Allows filling in Entity parameters during construction.
-  	 *
-  	 * @param array|null $data
-  	 */
-
-     protected $usePublicAttributes = true;
-     protected $publicAttributes = [
-       "id",
-       "slug",
-       "label"
-     ];
-
     public function setLabel(string $label)
     {
       helper('inflector');
