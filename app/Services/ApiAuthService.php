@@ -28,7 +28,7 @@ class ApiAuthService
             }
             $this->errors = $jwtService::getLastError();
         }
-        $this->errors = "Acces token required";
+        if($this->errors == null) $this->errors = "Acces token required";
         return false;
     }
 
